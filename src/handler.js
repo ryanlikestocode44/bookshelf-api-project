@@ -55,6 +55,8 @@ const addBookHandler = (request, h) => {
       message: 'Buku berhasil ditambahkan',
       data: {
         bookId: bookId,
+        reading: reading,
+        finished: finished,
       },
     });
     response.code(201);
@@ -69,67 +71,26 @@ const addBookHandler = (request, h) => {
   return response;
 };
 
-const getAllBooksHandler = (request, h) => {
-  const {name, reading, finished} = request.query;
-
+const getAllBooksHandler = (_, h) => {
   if (books.length > 0) {
-    if (name) {
-      const bookFiltered = books.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
-      const response = h.response({
-        status: 'success',
-        data: {
-          books: bookFiltered.map((book) => ({
-            bookId: book.bookId,
-            name: book.name,
-            publisher: book.publisher,
-          })),
-        },
-      });
-      response.code(200);
-      return response;
-    }
-
-    if (reading) {
-      const bookFiltered = books.filter((book) => book.reading === Number(reading));
-      const response = h.response({
-        status: 'success',
-        data: {
-          books: bookFiltered.map((book) => ({
-            bookId: book.bookId,
-            name: book.name,
-            publisher: book.publisher,
-          })),
-        },
-      });
-      response.code(200);
-      return response;
-    }
-
-    if (finished) {
-      const bookFiltered = books.filter((book) => book.finished === Number(finished));
-      const response = h.response({
-        status: 'success',
-        data: {
-          books: bookFiltered.map((book) => ({
-            bookId: book.bookId,
-            name: book.name,
-            publisher: book.publisher,
-          })),
-        },
-      });
-      response.code(200);
-      return response;
-    }
+    const response = h.response({
+      status: 'success',
+      data: {
+        books: books.map((book) => ({
+          id: book.bookId,
+          name: book.name,
+          publisher: book.publisher,
+        })),
+      },
+    });
+    response.code(200);
+    return response;
   }
 
   const response = h.response({
     status: 'success',
     data: {
-      books: bookFiltered.map((book) => ({
-        bookId: book.bookId,
-        name: book.name,
-        publisher: book.publisher,
-      })),
+      books: [],
     },
   });
   response.code(200);
@@ -145,7 +106,20 @@ const getBookByIdHandler = (request, h) => {
     return {
       status: 'success',
       data: {
-        book,
+        book: {
+          id: book.bookId,
+          name: book.name,
+          year: book.year,
+          author: book.author,
+          summary: book.summary,
+          publisher: book.publisher,
+          pageCount: book.pageCount,
+          readPage: book.readPage,
+          finished: book.pageCount === book.readPage,
+          reading: book.reading,
+          insertedAt: book.insertedAt,
+          updatedAt: book.updatedAt,
+        },
       },
     };
   }
@@ -230,7 +204,7 @@ const deleteBookByIdHandler = (request, h) => {
 
   const response = h.response({
     status: 'fail',
-    message: 'Gagal memperbarui buku. bookId tidak ditemukan',
+    message: 'Buku gagal dihapus. Id tidak ditemukan',
   });
   response.code(404);
   return response;
